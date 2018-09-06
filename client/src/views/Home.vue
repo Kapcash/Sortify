@@ -1,6 +1,9 @@
 <template>
   <div class="home">
     <h1>Vous êtes connecté, bravo !</h1>
+    {{currentUser.displayName}}
+    {{currentUser.id}}
+    <img v-bind:src="currentUser.imageLink">
   </div>
 </template>
 
@@ -11,21 +14,17 @@ import apiService from '../services/sortify-api.service';
 
 @Component({})
 export default class Home extends Vue {
-  currentUser: any;
+  public currentUser: any = {};
 
-  mounted(){
+  private mounted() {
     apiService.getUserInfos().then(
       (response) => {
-        console.log(response);
+        this.currentUser = response.data;
       }
     ).catch((error) => {
       console.log(error);
     });
   }
 
-  setUser(user) {
-    this.currentUser = user;
-  }
-  
 }
 </script>

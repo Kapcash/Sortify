@@ -1,6 +1,7 @@
-import { Controller, Get, Logger, Res, Req } from '@nestjs/common';
+import { Controller, Get, Logger, Res, Req, UseInterceptors } from '@nestjs/common';
 import { AppService } from '../app.service';
 import * as url from 'url';
+import { LoggingInterceptor } from '../auth.interceptor';
 
 @Controller('connect')
 export class ConnectController {
@@ -32,8 +33,25 @@ export class ConnectController {
    * then redirect to the main web page
    */
   @Get('/signin')
-  public async signin(@Req() req, @Res() res){
+  public signin(@Req() req, @Res() res){
     return this.appService.getToken(req.query.code);
+  }
+
+  /**
+   * This route should be called only if logged once before
+   * So a jwt should exists in the request and be parsed by the interceptor
+   */
+  @Get('refresh')
+  @UseInterceptors(LoggingInterceptor)
+  public refresh(@Req() req, @Res() res){
+    this.appService.getToken(req.params.jwt.spotify_refresh_token).subscribe(
+      (result) => {
+        res.status(200).send(result);
+      },
+      (error) => {
+        res.status(error.response.status).send(error.response);
+      },
+    );
   }
 
   /**

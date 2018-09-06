@@ -23,10 +23,12 @@ class AuthService  {
       (error) => {
         // If not authenticated, go back to login page
         if (error.response.status === 401) {
-          router.push('/login?error=401');
+          this.refreshJwt().catch((refreshError) => {
+            this.deleteJwt();
+            router.push('/login?error=refresh_token_error');
+          });
         }
-        return error;
-        // TODO: Handle expired token
+        throw new Error(error.response.data);
       }
     );
   }
@@ -37,6 +39,14 @@ class AuthService  {
 
   public storeJwt(jwt: string) {
     localStorage.setItem('sortify_jwt', jwt);
+  }
+
+  public deleteJwt() {
+    localStorage.removeItem('sortify_jwt');
+  }
+
+  public refreshJwt() {
+    return axios.get('/connect/refresh');
   }
 }
 

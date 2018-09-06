@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { SpotifyUser } from './models/spotifyUser';
 import { ConfigService } from 'nestjs-config';
 import { Observable } from 'rxjs';
+import { AxiosResponse } from 'axios';
 
 @Injectable()
 export class AppService {
@@ -26,10 +27,10 @@ export class AppService {
 
   // === Authentication === //
 
-  getToken(code: string): any{
+  getToken(spotifyCode: string): Observable<string>{
     return this.httpService.post('https://accounts.spotify.com/api/token', formurlencoded({
       grant_type: 'authorization_code',
-      code,
+      code: spotifyCode,
       redirect_uri: this.redirectURI, // Used only for security, not for redirect
     }), {
       headers: {
@@ -39,12 +40,11 @@ export class AppService {
     }).pipe(
       map(res => {
         const spotifyAuth = res.data;
-        const newJwt = this.jwtService.sign({
+        return this.jwtService.sign({
           spotify_token: spotifyAuth.access_token,
           expires_in: spotifyAuth.expires_in,
-          generation_date: Date.now() / 1000, // new date in seconds
+          spotify_refresh_token: spotifyAuth.refresh_token,
         });
-        return newJwt;
       }),
     );
   }

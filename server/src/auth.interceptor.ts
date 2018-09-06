@@ -15,7 +15,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const httpRequest = context.args[0];
     const httpResponse = context.args[1];
     // Comes from an http request, to '/spotify' endpoints
-    if (httpRequest.protocol === 'http' && httpRequest.path.includes('/spotify')) {
+    if (httpRequest.protocol === 'http') {
       const signedJwt = httpRequest.headers.authorization.replace('Bearer ', '');
       httpRequest.params.jwt = this.appService.decodeJwt(signedJwt);
 

@@ -32,14 +32,14 @@ const sortifyRouter = new Router({
           // We request the jwt token
           authService.storeJwt(to.query.jwt);
           next('/');
-        } else if (to.query.error) {
-          // TODO: Handle error jwt
-        } else {
+        } else if (!to.query.error) {
           if (authService.isUserConnected()) {
             next('/');
           } else {
             next();
           }
+        } else {
+          next();
         }
       }
     },
