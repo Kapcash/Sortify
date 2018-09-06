@@ -1,18 +1,31 @@
 <template>
   <div class="home">
-    <img src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <h1>Vous êtes connecté, bravo !</h1>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import apiService from '../services/sortify-api.service';
 
-@Component({
-  components: {
-    HelloWorld,
-  },
-})
-export default class Home extends Vue {}
+
+@Component({})
+export default class Home extends Vue {
+  currentUser: any;
+
+  mounted(){
+    apiService.getUserInfos().then(
+      (response) => {
+        console.log(response);
+      }
+    ).catch((error) => {
+      console.log(error);
+    });
+  }
+
+  setUser(user) {
+    this.currentUser = user;
+  }
+  
+}
 </script>

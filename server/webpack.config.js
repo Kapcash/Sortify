@@ -31,4 +31,5 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'server.js',
   },
+  devtool: 'eval-source-map',
 };

@@ -8,11 +8,15 @@
             "type": "node",
             "request": "launch",
             "name": "Debug Nest Framework",
-            "args": ["${workspaceFolder}/src/main.ts"],
+            "args": ["${workspaceFolder}/server/src/main.ts"],
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
             "sourceMaps": true,
-            "cwd": "${workspaceRoot}",
-            "protocol": "inspector"
+            "outputCapture": "std",
+            "cwd": "${workspaceRoot}/server",
+            "protocol": "inspector",
+            "env": {
+                "NODE_ENV": "default"
+            }
         }
     ]
 }

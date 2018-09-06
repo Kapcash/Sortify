@@ -9,8 +9,8 @@ function loadLocaleMessages (): LocaleMessages {
   locales.keys().forEach((key) => {
     const matched = key.match(/([a-z0-9]+)\./i);
     if (matched && matched.length > 1) {
-      const locale = matched[1]
-      messages[locale] = locales(key)
+      const locale = matched[1];
+      messages[locale] = locales(key);
     }
   });
   return messages;

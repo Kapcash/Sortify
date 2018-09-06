@@ -6,5 +6,8 @@ module.exports = {
       localeDir: 'i18n',
       enableInSFC: true
     }
+  },
+  devServer: {
+    proxy: 'http://localhost:3000'
   }
 }
