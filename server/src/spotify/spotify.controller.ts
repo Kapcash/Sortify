@@ -15,7 +15,7 @@ export class SpotifyController {
         res.status(200).send(result);
       },
       (error) => {
-        res.send(401);
+        res.status(401).send(error.response.data);
       },
     );
   }

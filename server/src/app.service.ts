@@ -27,12 +27,24 @@ export class AppService {
 
   // === Authentication === //
 
-  getToken(spotifyCode: string): Observable<string>{
-    return this.httpService.post('https://accounts.spotify.com/api/token', formurlencoded({
-      grant_type: 'authorization_code',
-      code: spotifyCode,
-      redirect_uri: this.redirectURI, // Used only for security, not for redirect
-    }), {
+  getToken(spotifyCode: string, refreshing: boolean = false): Observable<string>{
+    let tokenBody: any;
+    if (refreshing) {
+      // Refresh Token
+      tokenBody = formurlencoded({
+        grant_type: 'refresh_token',
+        refresh_token: spotifyCode,
+      });
+    } else {
+      // Auth token
+      tokenBody = formurlencoded({
+        grant_type: 'authorization_code',
+        code: spotifyCode,
+        redirect_uri: this.redirectURI, // Used only for security, not for redirect
+      });
+    }
+
+    return this.httpService.post('https://accounts.spotify.com/api/token', tokenBody, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': 'Basic ' + Buffer.from(this.clientId + ':' + this.clientSecret).toString('base64'),

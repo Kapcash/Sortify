@@ -44,12 +44,12 @@ export class ConnectController {
   @Get('refresh')
   @UseInterceptors(LoggingInterceptor)
   public refresh(@Req() req, @Res() res){
-    this.appService.getToken(req.params.jwt.spotify_refresh_token).subscribe(
+    this.appService.getToken(req.params.jwt.spotify_refresh_token, true).subscribe(
       (result) => {
         res.status(200).send(result);
       },
       (error) => {
-        res.status(error.response.status).send(error.response);
+        res.status(error.response.status).send(error.response.data);
       },
     );
   }

@@ -16,14 +16,14 @@ export default class Login extends Vue {
   private static readonly spotifyAuthUrl = 'http://localhost:3000/connect';
   public error: string = '';
 
-  private mounted() {
-    if(this.$route.query.error){
-      this.error = this.$route.query.error;
-    }
-  }
-
   public connect() {
     window.location.href = Login.spotifyAuthUrl;
+  }
+
+  private mounted() {
+    if (this.$route.query.error) {
+      this.error = this.$route.query.error;
+    }
   }
 }
 </script>

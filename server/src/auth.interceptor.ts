@@ -19,9 +19,7 @@ export class LoggingInterceptor implements NestInterceptor {
       const signedJwt = httpRequest.headers.authorization.replace('Bearer ', '');
       httpRequest.params.jwt = this.appService.decodeJwt(signedJwt);
 
-      return call$.pipe(
-        tap(() => Logger.log('After...')),
-      );
+      return call$;
     }
 
   }

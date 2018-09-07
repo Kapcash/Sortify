@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosPromise } from 'axios';
 import router from '../router';
 
 class AuthService  {
@@ -23,7 +23,11 @@ class AuthService  {
       (error) => {
         // If not authenticated, go back to login page
         if (error.response.status === 401) {
-          this.refreshJwt().catch((refreshError) => {
+          this.refreshJwt().then((refreshedJwt) => {
+            // Yeah! We get a fresh new Jwt! Go back to login page to handle storing process
+            router.push('/login?jwt=' + refreshedJwt.data);
+          }).catch((refreshError) => {
+            // Well, something went wrong. You're not authenticated anymore, sorry.
             this.deleteJwt();
             router.push('/login?error=refresh_token_error');
           });
@@ -45,7 +49,7 @@ class AuthService  {
     localStorage.removeItem('sortify_jwt');
   }
 
-  public refreshJwt() {
+  public refreshJwt(): AxiosPromise<string> {
     return axios.get('/connect/refresh');
   }
 }
