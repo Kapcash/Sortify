@@ -2,17 +2,17 @@ import { Module, HttpModule, NestModule, MiddlewareConsumer } from '@nestjs/comm
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from 'nestjs-config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AuthService } from './auth.service';
+import { SortifyService } from './sortify.service';
 import { SpotifyController } from './spotify/spotify.controller';
 import { ConnectController } from './connect/connect.controller';
-import * as path from 'path';
 
 @Module({
   imports: [HttpModule,
     JwtModule.register({ secretOrPrivateKey: 'sortify' }),
     ConfigModule.load()],
   controllers: [AppController, SpotifyController, ConnectController],
-  providers: [AppService],
+  providers: [AuthService, SortifyService],
 })
 export class AppModule implements NestModule{
   configure(consumer: MiddlewareConsumer){

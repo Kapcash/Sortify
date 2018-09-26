@@ -1,16 +1,16 @@
 import { Controller, Get, Logger, Req, UseInterceptors, Res } from '@nestjs/common';
-import { AppService } from '../app.service';
+import { SortifyService } from '../sortify.service';
 import { LoggingInterceptor } from '../auth.interceptor';
 
 @Controller('spotify')
 @UseInterceptors(LoggingInterceptor)
 export class SpotifyController {
 
-  constructor(private readonly appService: AppService){}
+  constructor(private readonly sortifyService: SortifyService){}
 
   @Get('/me')
   getUserInfos(@Req() req, @Res() res) {
-    this.appService.getUserInfos(req).subscribe(
+    this.sortifyService.getUserInfos(req).subscribe(
       (result) => {
         res.status(200).send(result);
       },
@@ -18,5 +18,10 @@ export class SpotifyController {
         res.status(401).send(error.response.data);
       },
     );
+  }
+
+  @Get('/unsorted-tracks')
+  getUnsortedTracks(@Req() req, @Res() res) {
+    this.sortifyService.getUnsortedTracks(req).subscribe();
   }
 }

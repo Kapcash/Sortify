@@ -1,12 +1,12 @@
 import { Controller, Get, Logger, Res, Req, UseInterceptors } from '@nestjs/common';
-import { AppService } from '../app.service';
-import * as url from 'url';
+import { AuthService } from '../auth.service';
 import { LoggingInterceptor } from '../auth.interceptor';
+import * as url from 'url';
 
 @Controller('connect')
 export class ConnectController {
 
-  constructor(private readonly appService: AppService) {
+  constructor(private readonly authService: AuthService) {
   }
 
   /**
@@ -19,9 +19,9 @@ export class ConnectController {
       pathname: 'https://accounts.spotify.com/authorize',
       query: {
         response_type: 'code',
-        client_id: this.appService.clientId,
-        scope: this.appService.scopes,
-        redirect_uri: this.appService.redirectURI,
+        client_id: this.authService.clientId,
+        scope: this.authService.scopes,
+        redirect_uri: this.authService.redirectURI,
         state: 'sortify',
       },
       }));
@@ -34,7 +34,7 @@ export class ConnectController {
    */
   @Get('/signin')
   public signin(@Req() req, @Res() res){
-    return this.appService.getToken(req.query.code);
+    return this.authService.getToken(req.query.code);
   }
 
   /**
@@ -44,7 +44,7 @@ export class ConnectController {
   @Get('refresh')
   @UseInterceptors(LoggingInterceptor)
   public refresh(@Req() req, @Res() res){
-    this.appService.getToken(req.params.jwt.spotify_refresh_token, true).subscribe(
+    this.authService.getToken(req.params.jwt.spotify_refresh_token, true).subscribe(
       (result) => {
         res.status(200).send(result);
       },
@@ -61,7 +61,7 @@ export class ConnectController {
    */
   @Get('/callback')
   public async callback(@Req() req, @Res() res){
-    this.appService.getToken(req.query.code).subscribe(
+    this.authService.getToken(req.query.code).subscribe(
       (jwt) => {
         res.redirect('http://localhost:8080/#/login?jwt=' + jwt);
       },

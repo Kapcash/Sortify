@@ -2,13 +2,11 @@ import { Injectable, HttpService, Logger, UseInterceptors } from '@nestjs/common
 import formurlencoded from 'form-urlencoded';
 import { JwtService } from '@nestjs/jwt';
 import { map } from 'rxjs/operators';
-import { SpotifyUser } from './models/spotifyUser';
 import { ConfigService } from 'nestjs-config';
 import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios';
 
 @Injectable()
-export class AppService {
+export class AuthService {
 
   private clientSecret: string;
   public clientId: string;
@@ -25,13 +23,11 @@ export class AppService {
       this.scopes = this.config.get('default.scopes');
     }
 
-  // === Authentication === //
-
   getToken(spotifyCode: string, refreshing: boolean = false): Observable<string>{
     let tokenBody: any;
     if (refreshing) {
       // Refresh Token
-      tokenBody = formurlencoded({
+      tokenBody = formurlencoded({ // TODO: Change to use https://github.com/axios/axios#using-applicationx-www-form-urlencoded-format
         grant_type: 'refresh_token',
         refresh_token: spotifyCode,
       });
@@ -68,26 +64,4 @@ export class AppService {
   decodeJwt(jwt: string): any {
     return this.jwtService.decode(jwt, {json: true});
   }
-
-  // ====================== //
-
-  // === Spotify Api functions === //
-
-  createPlaylist(): string {
-    return 'Creating playlist';
-  }
-
-  getUserInfos(req): Observable<SpotifyUser> {
-    return this.httpService.get('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: 'Bearer ' + req.params.jwt.spotify_token,
-      },
-    }).pipe(
-      map((res) => {
-        return new SpotifyUser(res.data);
-      }),
-    );
-  }
-
-  // ============================ //
 }

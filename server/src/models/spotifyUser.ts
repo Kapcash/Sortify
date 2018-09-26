@@ -1,4 +1,4 @@
-export interface SortifyUser{
+export interface SortifyUser {
   imageLink: string;
   displayName: string;
   accountType: 'premium' | 'basic';

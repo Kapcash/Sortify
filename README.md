@@ -9,6 +9,7 @@ Future features:
 - Display all unsorted tracks
 - Auto add sorted tracks to personal library
 - List all subscribed artists and new tracks from them
+- Unsave a track and remove it to all personal playlists
 - Make coffee and mow the lawn
 
 ## Project setup
