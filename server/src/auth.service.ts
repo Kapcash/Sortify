@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { map } from 'rxjs/operators';
 import { ConfigService } from 'nestjs-config';
 import { Observable } from 'rxjs';
+import { SortifyJwt } from '../../shared/models/sortify-jwt.model';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,7 @@ export class AuthService {
     return this.httpService.post('https://accounts.spotify.com/api/token', tokenBody, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
         'Authorization': 'Basic ' + Buffer.from(this.clientId + ':' + this.clientSecret).toString('base64'),
       },
     }).pipe(
@@ -61,7 +63,7 @@ export class AuthService {
     return this.jwtService.verify(jwt);
   }
 
-  decodeJwt(jwt: string): any {
-    return this.jwtService.decode(jwt, {json: true});
+  decodeJwt(jwt: string): SortifyJwt {
+    return <SortifyJwt>this.jwtService.decode(jwt, {json: true});
   }
 }
