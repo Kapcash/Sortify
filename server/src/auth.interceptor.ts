@@ -1,6 +1,8 @@
 import { Injectable, NestInterceptor, ExecutionContext, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import axios from 'axios';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -11,16 +13,14 @@ export class LoggingInterceptor implements NestInterceptor {
     context: ExecutionContext,
     call$: Observable<any>,
   ): Observable<any> {
-    const httpRequest = context.args[0];
-    // const httpResponse = context.args[1];
+    const httpRequest = context.getArgByIndex(0);
+    const httpResponse = context.getArgByIndex(1);
     
     // Comes from an http request, to '/spotify' endpoints
-    if (httpRequest.protocol === 'http') {
+    if (httpRequest.protocol === 'http' || 'https') {
       const signedJwt = httpRequest.headers.authorization.replace('Bearer ', '');
       httpRequest.params.jwt = this.authService.decodeJwt(signedJwt);
-
-      return call$;
     }
-
+    return call$;
   }
 }

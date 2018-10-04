@@ -10,9 +10,7 @@ class AuthService  {
         request.headers.Authorization = 'Bearer ' + localStorage.getItem('sortify_jwt');
         return request;
       },
-      (error) => {
-        return error;
-      }
+      (error) => error,
     );
 
     // Add a 401 response interceptor
@@ -31,6 +29,8 @@ class AuthService  {
             this.deleteJwt();
             router.push('/login?error=refresh_token_error');
           });
+        } else if (error.response.status === 500 && error.response.data.includes('ECONNRESET')){
+          // TODO: Toast error, connexion with server hang out
         }
         throw new Error(error.response.data);
       }

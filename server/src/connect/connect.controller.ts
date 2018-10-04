@@ -1,7 +1,8 @@
-import { Controller, Get, Logger, Res, Req, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Logger, Res, Req, UseInterceptors, Param, Query } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { LoggingInterceptor } from '../auth.interceptor';
 import * as url from 'url';
+import { map } from 'rxjs/operators';
 
 @Controller('connect')
 export class ConnectController {
@@ -43,15 +44,15 @@ export class ConnectController {
    */
   @Get('refresh')
   @UseInterceptors(LoggingInterceptor)
-  public refresh(@Req() req, @Res() res){
-    this.authService.getToken(req.params.jwt.spotify_refresh_token, true).subscribe(
+  public refresh(@Param('jwt') jwt){
+    return this.authService.getToken(jwt.spotify_refresh_token, true).pipe(map(
       (result) => {
-        res.status(200).send(result);
+        return result;
       },
       (error) => {
-        res.status(error.response.status).send(error.response.data);
+        return error.response.data.error;
       },
-    );
+    ));
   }
 
   /**
@@ -60,8 +61,8 @@ export class ConnectController {
    * then redirect to the main web page
    */
   @Get('/callback')
-  public async callback(@Req() req, @Res() res){
-    this.authService.getToken(req.query.code).subscribe(
+  public async callback(@Query('code') code, @Res() res){
+    return this.authService.getToken(code).subscribe(
       (jwt) => {
         res.redirect('http://localhost:8080/#/login?jwt=' + jwt);
       },
