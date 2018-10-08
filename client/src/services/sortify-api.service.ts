@@ -7,7 +7,7 @@ class SortifyApiService  {
   /** List of all saved tracks in the user's library (id) */
   public savedTracks: string[]  = [];
   /** List of all sorted tracks stored by <track id, list of playlist containing the track> */
-  public sortedTracks: Map<string, string[]>  = new Map();
+  public sortedTracks: any[] = [];
   /** List of all tracks in the special 'sortify-trash' playlist (id) */
   public sortifyTrashPlaylist: string[]  = [];
 
@@ -20,7 +20,8 @@ class SortifyApiService  {
       (response) => {
         this.userPlaylist = response.data.userPlaylist;
         this.savedTracks = response.data.savedTracks;
-        this.sortedTracks = new Map(response.data.sortedTracks);
+        this.sortedTracks = response.data.sortedTracks;
+        return response.data;
       }
     ).catch((error) => {
       console.log(error);

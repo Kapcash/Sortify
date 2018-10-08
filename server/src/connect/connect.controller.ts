@@ -2,7 +2,8 @@ import { Controller, Get, Logger, Res, Req, UseInterceptors, Param, Query } from
 import { AuthService } from '../auth.service';
 import { LoggingInterceptor } from '../auth.interceptor';
 import * as url from 'url';
-import { map } from 'rxjs/operators';
+import express = require('express');
+import { SortifyJwt } from '../../../shared/models/sortify-jwt.model';
 
 @Controller('connect')
 export class ConnectController {
@@ -14,7 +15,7 @@ export class ConnectController {
    * Redirect to the Spotify connexion page
    */
   @Get('/')
-  public connect(@Req() req, @Res() res){
+  public connect(@Res() res: express.Response){
     Logger.log('GET connect');
     res.redirect(url.format({
       pathname: 'https://accounts.spotify.com/authorize',
@@ -34,7 +35,7 @@ export class ConnectController {
    * then redirect to the main web page
    */
   @Get('/signin')
-  public signin(@Req() req, @Res() res){
+  public signin(@Req() req: express.Request){
     return this.authService.getToken(req.query.code);
   }
 
@@ -44,15 +45,8 @@ export class ConnectController {
    */
   @Get('refresh')
   @UseInterceptors(LoggingInterceptor)
-  public refresh(@Param('jwt') jwt){
-    return this.authService.getToken(jwt.spotify_refresh_token, true).pipe(map(
-      (result) => {
-        return result;
-      },
-      (error) => {
-        return error.response.data.error;
-      },
-    ));
+  public refresh(@Param('jwt') jwt: SortifyJwt){
+    return this.authService.getToken(jwt.spotify_refresh_token, true);
   }
 
   /**
@@ -61,7 +55,7 @@ export class ConnectController {
    * then redirect to the main web page
    */
   @Get('/callback')
-  public async callback(@Query('code') code, @Res() res){
+  public async callback(@Query('code') code: string, @Res() res: express.Response){
     return this.authService.getToken(code).subscribe(
       (jwt) => {
         res.redirect('http://localhost:8080/#/login?jwt=' + jwt);

@@ -29,7 +29,7 @@ class AuthService  {
             this.deleteJwt();
             router.push('/login?error=refresh_token_error');
           });
-        } else if (error.response.status === 500 && error.response.data.includes('ECONNRESET')){
+        } else if (error.response.status === 500 && error.response.data.includes('ECONNREFUSED')){
           // TODO: Toast error, connexion with server hang out
         }
         throw new Error(error.response.data);

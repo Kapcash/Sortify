@@ -6,7 +6,7 @@
 
     {{currentUser.displayName}}
     {{currentUser.id}}
-    <img v-bind:src="currentUser.imageLink">
+    <img v-bind:src="currentUser.images[0].url">
   </div>
 </template>
 
@@ -21,20 +21,21 @@ export default class Home extends Vue {
   public loading: boolean = true;
 
   private mounted() {
-    apiService.getUserInfos().then(
-      (userResponse) => {
-        this.currentUser = userResponse.data;
-        apiService.initializeApp(this.currentUser).then((initResponse) => {
+    apiService.getUserInfos().then((userResponse) => {
+      this.currentUser = userResponse.data;
+      apiService.initializeApp(this.currentUser).then((initResponse) => {
+        apiService.getUnsortedTracks().then((unsortedTracks) => {
           this.loading = false;
+          noop;
         }).catch((error) => {
           this.loading = false;
         });
-      }
-    ).catch((error) => {
+      }).catch((error) => {
+        this.loading = false;
+      });
+    }).catch((error) => {
       console.log(error);
     });
-
   }
-
 }
 </script>

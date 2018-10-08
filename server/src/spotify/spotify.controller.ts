@@ -1,8 +1,8 @@
-import { Controller, Get, Logger, Req, UseInterceptors, Res, Post, Param } from '@nestjs/common';
+import { Controller, Get, UseInterceptors, Post, Param, Body } from '@nestjs/common';
 import { SortifyService } from '../sortify.service';
 import { LoggingInterceptor } from '../auth.interceptor';
 import { User } from '../user.decorator';
-import { map } from 'rxjs/operators';
+import { SortifyJwt } from '../../../shared/models/sortify-jwt.model';
 
 @Controller('spotify')
 @UseInterceptors(LoggingInterceptor)
@@ -12,39 +12,26 @@ export class SpotifyController {
 
   /**
    * 
-   * @param req The incoming request from client side. It requires the body to contain sortedTracks:
+   * @param jwt The incoming request from client side. It requires the body to contain sortedTracks:
    *            Map<string, Array<string>> and savedTracks: Array<string>
-   * @param res 
+   * @param user The spotify user used to filter playlists
    */
   @Post('/init')
-  initializeApp(@Param('jwt') jwt, @User() user){
-    return this.sortifyService.initializeTracksMaps(user, jwt).pipe(
-      map(
-        (res) => {
-          console.log(res);
-          return res;
-        }
-      )
-    );
+  initializeApp(@Param('jwt') jwt: SortifyJwt, @User() user: SpotifyApi.UserProfileResponse){
+    return this.sortifyService.initializeTracksMaps(user, jwt);
   }
 
   @Get('/me')
-  getUserInfos(@Param('jwt') jwt) {
-    return this.sortifyService.getUserInfos(jwt).pipe(
-      map(
-        (result: SpotifyApi.UserProfileResponse) => result,
-        (error) => error.response.data.error,
-      )
-    );
+  getUserInfos(@Param('jwt') jwt: SortifyJwt) {
+    return this.sortifyService.getUserInfos(jwt);
   }
 
+  /**
+   * @param req The incoming request from client side. It requires the body to contain sortedTracks:
+   *            Map<string, Array<string>> and savedTracks: Array<string>
+   */
   @Post('/unsorted-tracks')
-  getUnsortedTracks(@Req() req) {
-    return this.sortifyService.getUnsortedTracks(req.body.sortedTracks, req.body.savedTracks).pipe(
-      map(
-        (result) => result,
-        (error) => error.response.data.error,
-      )
-    );
+  getUnsortedTracks(@Body('sortedTracks') sortedTracks: any, @Body('savedTracks') savedTracks: string[]) {
+    return this.sortifyService.getUnsortedTracks(sortedTracks, savedTracks);
   }
 }

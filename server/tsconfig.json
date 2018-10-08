@@ -10,7 +10,8 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "types": [
-      "spotify-api"
+      "spotify-api",
+      "express"
     ]
   },
   "include": [

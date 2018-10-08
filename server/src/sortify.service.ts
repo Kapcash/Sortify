@@ -1,7 +1,9 @@
-import { Injectable, HttpService } from '@nestjs/common';
-import { map, flatMap } from 'rxjs/operators';
-import { Observable, of, from} from 'rxjs';
-import axios from 'axios';
+import { Injectable, HttpService, HttpException } from '@nestjs/common';
+import { map, flatMap, catchError } from 'rxjs/operators';
+import { Observable, of, from, throwError} from 'rxjs';
+import axios, { AxiosError } from 'axios';
+import { SortifyJwt } from '../../shared/models/sortify-jwt.model';
+import { SpotifyUser } from 'models/spotifyUser';
 
 @Injectable()
 export class SortifyService {
@@ -20,22 +22,23 @@ export class SortifyService {
    * @param req The incoming request from client side
    * @see SpotifyUser Type model
    */
-  getUserInfos(jwt): Observable<SpotifyApi.UserProfileResponse> {
+  getUserInfos(jwt: SortifyJwt): Observable<SpotifyApi.UserProfileResponse> {
     return this.httpService.get('https://api.spotify.com/v1/me', {
       headers: {
         Authorization: 'Bearer ' + jwt.spotify_token,
       },
     }).pipe(
-      map((res) => {
-        return res.data;
+      map((res) => res.data),
+      catchError((error) => { 
+        throw new HttpException(error.response.data.error.message, error.response.data.error.status)
       }),
     );
   }
 
-  repeatRequests(jwt, endpoint): Promise<Array<any>>{
+  repeatRequests(jwt: SortifyJwt, endpoint: string): Promise<Array<any>>{
     let tempArray = new Array<any>();
 
-    const recursive = (jwt, endpoint) => {
+    const recursive = (jwt: SortifyJwt, endpoint: string): any => {
       return this.httpService.get(endpoint, {
         headers: {
           Authorization: 'Bearer ' + jwt.spotify_token,
@@ -55,7 +58,7 @@ export class SortifyService {
     return recursive(jwt, endpoint);
   }
 
-  initializeTracksMaps(spotifyUser, jwt): Observable<any> {
+  initializeTracksMaps(spotifyUser: SpotifyApi.UserProfileResponse, jwt: SortifyJwt): Observable<any> {
 
     /** List of personal user's playlists (id) */
     let userPlaylist: Set<string>;
@@ -75,7 +78,7 @@ export class SortifyService {
     return from(axios.all([getPlaylists, getSavedTracks]).then(axios.spread((playlists: Array<string>, tracks: Array<string>) => {
       savedTracks = new Set(tracks);
       userPlaylist = new Set(playlists);
-      const promises = [];
+      const promises: Promise<any>[] = [];
       playlists.forEach(playlistId => {
         const getPlaylistsTracksPromise =  this.repeatRequests(jwt, `https://api.spotify.com/v1/playlists/${playlistId}/tracks`).then((playlistTracks) => {
           playlistTracks.forEach((trackObj) => {
@@ -108,7 +111,7 @@ export class SortifyService {
    * @param req The incoming request from client side. It requires the body to contain sortedTracks:
    *            Map<string, Array<string>> and savedTracks: Array<string>
    */
-  getUnsortedTracks(sortedTracks, savedTracks): any {
+  getUnsortedTracks(sortedTracks: any[], savedTracks: string[]): any {
     // Get the differences (symetric)
     const sortedTracksMap = new Map(sortedTracks);
     const savedTracksSet = new Set(savedTracks);
@@ -116,6 +119,6 @@ export class SortifyService {
     for (var elem of savedTracksSet) {
       differences.delete(elem);
     }
-    return differences;
+    return [...differences];
   }
 }
