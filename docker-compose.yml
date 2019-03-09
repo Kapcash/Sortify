@@ -1,0 +1,14 @@
+version: "1.0"
+
+services:
+
+  #mongoDB
+  mongodb:
+    image: mongo:latest
+    user: mongodb
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    command: mongod --wiredTigerCacheSizeGB 4
+    restart: on-failure
+  

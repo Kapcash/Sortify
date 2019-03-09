@@ -2,7 +2,7 @@ import { Injectable, HttpService, Logger, UseInterceptors } from '@nestjs/common
 import formurlencoded from 'form-urlencoded';
 import { JwtService } from '@nestjs/jwt';
 import { map } from 'rxjs/operators';
-import { ConfigService } from 'nestjs-config';
+import { ConfigService } from './config.service';
 import { Observable } from 'rxjs';
 import { SortifyJwt } from '../../shared/models/sortify-jwt.model';
 
@@ -17,11 +17,11 @@ export class AuthService {
   constructor(
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService){
+    private readonly config: ConfigService) {
       // Initialize spotify api values from local config
-      this.clientId = this.config.get('default.client_id');
-      this.clientSecret = this.config.get('default.client_secret');
-      this.scopes = this.config.get('default.scopes');
+      this.clientId = this.config.get('client_id');
+      this.clientSecret = this.config.get('client_secret');
+      this.scopes = this.config.get('scopes');
     }
 
   getToken(spotifyCode: string, refreshing: boolean = false): Observable<string>{

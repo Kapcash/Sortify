@@ -5,6 +5,7 @@
     "declaration": false,
     "noImplicitAny": true,
     "sourceMap": true,
+    "target": "es2018",
     "removeComments": true,
     "noLib": false,
     "outDir": "./dist",

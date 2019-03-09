@@ -15,7 +15,8 @@
             "cwd": "${workspaceRoot}/server",
             "protocol": "inspector",
             "env": {
-                "NODE_ENV": "default"
+                "NODE_ENV": "dev",
+                "MONGO_IP": "192.168.56.5"
             }
         }
     ]

@@ -30,7 +30,7 @@ const sortifyRouter = new Router({
         // If coming from backend authentication
         if (to.query.jwt) {
           // We request the jwt token
-          authService.storeJwt(to.query.jwt);
+          authService.storeJwt(to.query.jwt as string);
           next('/');
         } else if (!to.query.error) {
           if (authService.isUserConnected()) {

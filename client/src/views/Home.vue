@@ -5,31 +5,32 @@
     <h1>{{loading}}</h1>
 
     {{currentUser.displayName}}
-    {{currentUser.id}}
-    <img v-bind:src="currentUser.images[0].url">
+    <img v-bind:src="currentUser.imageUrl">
+
+    <ul><li v-for="pl in playlists" :key="pl._id">{{pl.name}}</li></ul>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import apiService from '../services/sortify-api.service';
-import { noop } from 'vue-class-component/lib/util';
 
 @Component({})
 export default class Home extends Vue {
   public currentUser: any = {};
   public loading: boolean = true;
+  public playlists: any[] = [];
 
   private mounted() {
     apiService.getUserInfos().then((userResponse) => {
       this.currentUser = userResponse.data;
       apiService.initializeApp(this.currentUser).then((initResponse) => {
-        apiService.getUnsortedTracks().then((unsortedTracks) => {
-          this.loading = false;
-          noop;
-        }).catch((error) => {
-          this.loading = false;
-        });
+        this.loading = false;
+        apiService.getPlaylists(this.currentUser).then((playlists) => this.playlists = playlists.data);
+        // apiService.getUnsortedTracks().then((unsortedTracks) => {
+        // }).catch((error) => {
+        //   this.loading = false;
+        // });
       }).catch((error) => {
         this.loading = false;
       });

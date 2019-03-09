@@ -14,7 +14,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 })
 export default class Login extends Vue {
   private static readonly spotifyAuthUrl = 'http://localhost:3000/connect';
-  public error: string = '';
+  public error: any = '';
 
   public connect() {
     window.location.href = Login.spotifyAuthUrl;

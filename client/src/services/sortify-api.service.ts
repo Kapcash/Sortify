@@ -32,6 +32,10 @@ class SortifyApiService  {
     return axios.post('/spotify/unsorted-tracks', {sortedTracks: this.sortedTracks, savedTracks: this.savedTracks});
   }
 
+  public getPlaylists(user): any {
+    return axios.post('/spotify/playlists', {user});
+  }
+
 }
 
 export default new SortifyApiService();
