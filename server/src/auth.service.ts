@@ -4,7 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { map } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { Observable } from 'rxjs';
-import { SortifyJwt } from '../../shared/models/sortify-jwt.model';
+import { SortifyJwt, buildJwt } from './models/sortify-jwt.model';
+import { SortifyService } from 'sortify.service';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
   constructor(
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService) {
+    private readonly config: ConfigService,
+    private readonly spotifyService: SortifyService) {
       // Initialize spotify api values from local config
       this.clientId = this.config.get('client_id');
       this.clientSecret = this.config.get('client_secret');
@@ -50,11 +52,13 @@ export class AuthService {
     }).pipe(
       map(res => {
         const spotifyAuth = res.data;
-        return this.jwtService.sign({
-          spotify_token: spotifyAuth.access_token,
-          expires_in: spotifyAuth.expires_in,
-          spotify_refresh_token: spotifyAuth.refresh_token,
-        });
+        this.spotifyService.getUserInfos()
+        return this.jwtService.sign(
+          buildJwt(spotifyAuth.access_token,
+                    spotifyAuth.expires_in,
+                    spotifyAuth.refresh_token,
+                    0,
+                    undefined));
       }),
     );
   }
@@ -64,6 +68,6 @@ export class AuthService {
   }
 
   decodeJwt(jwt: string): SortifyJwt {
-    return <SortifyJwt>this.jwtService.decode(jwt, {json: true});
+    return this.jwtService.decode(jwt, {json: true}) as SortifyJwt;
   }
 }

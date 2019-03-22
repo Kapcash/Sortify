@@ -1,22 +1,30 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "declaration": false,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "allowJs": true,
     "target": "es5",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
     "moduleResolution": "node",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "types": [
       "node",
       "webpack",
-      "webpack-env"
+      "webpack-env",
+      "vuex-module-decorators"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"],
+      "@shared/*": ["../shared/*"]
     },
     "lib": [
       "esnext",
@@ -25,6 +33,9 @@
       "scripthost"
     ]
   },
+  "references": [
+    { "path": "../shared/" }
+  ],
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",

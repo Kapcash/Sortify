@@ -3,8 +3,7 @@ import Router from 'vue-router';
 import Login from '@/views/Login.vue';
 import Home from '@/views/Home.vue';
 import PageNotFound from '@/views/PageNotFound.vue';
-import authService from '@/services/auth.service';
-import apiService from '@/services/sortify-api.service';
+import authService from '@/stores/auth.service';
 
 Vue.use(Router);
 

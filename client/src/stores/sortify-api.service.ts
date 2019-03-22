@@ -11,6 +11,9 @@ class SortifyApiService  {
   /** List of all tracks in the special 'sortify-trash' playlist (id) */
   public sortifyTrashPlaylist: string[]  = [];
 
+  public currentTracks: any[] = [];
+  public playlists: any[] = [];
+
   public getUserInfos(): any {
     return axios.get('/spotify/me');
   }
@@ -34,6 +37,10 @@ class SortifyApiService  {
 
   public getPlaylists(user): any {
     return axios.post('/spotify/playlists', {user});
+  }
+
+  public getTracksByPlaylist(playlistId: string, user): any {
+    return axios.post(`/spotify/tracks?playlistId=${playlistId}`, {user});
   }
 
 }

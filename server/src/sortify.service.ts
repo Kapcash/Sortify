@@ -2,15 +2,13 @@ import { Injectable, HttpService, HttpException } from '@nestjs/common';
 import { map, flatMap, catchError } from 'rxjs/operators';
 import { Observable, of} from 'rxjs';
 import axios from 'axios';
-import { SortifyJwt } from '../../shared/models/sortify-jwt.model';
+import { SortifyJwt } from './models/sortify-jwt.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Playlist } from './models/playlist.interface';
 import { SortifyUser } from './models/user.interface';
 import { Track } from './models/track.interface';
 import * as mongoose from 'mongoose';
-import { basename } from 'path';
-import { WriteError, BulkWriteResult } from 'mongodb';
 
 @Injectable()
 export class SortifyService {
@@ -20,7 +18,10 @@ export class SortifyService {
     // @InjectModel('Track') private readonly trackModel: Model<Track>,
     private readonly httpService: HttpService,
   ) {
-
+    this.httpService.axiosRef.interceptors.request.use((req) => {
+      // TODO add jwt to all spotify api calls
+      return req;
+    });
   }
 
   mapSpotifyToSortifyUser(userFromSpotifyApi: any): any{
@@ -31,7 +32,7 @@ export class SortifyService {
       imageUrl: userFromSpotifyApi.images[0].url,
       displayName: userFromSpotifyApi.display_name,
       email: userFromSpotifyApi.email,
-    }
+    };
   }
 
   /**
@@ -48,8 +49,8 @@ export class SortifyService {
         user.update({upsert: true});
         return user.toObject();
       }),
-      catchError((error) => { 
-        throw new HttpException(error.response.data.error.message, error.response.data.error.status)
+      catchError((error) => {
+        throw new HttpException(error.response.data.error.message, error.response.data.error.status);
       }),
     );
   }
@@ -57,16 +58,16 @@ export class SortifyService {
   repeatRequests<T>(jwt: SortifyJwt, endpoint: string): Promise<Array<T>>{
     let tempArray = new Array<any>();
 
-    const recursive = (jwt: SortifyJwt, endpoint: string): any => {
-      return this.httpService.get(endpoint, {
+    const recursive = (_jwt: SortifyJwt, _endpoint: string): any => {
+      return this.httpService.get(_endpoint, {
         headers: {
-          Authorization: 'Bearer ' + jwt.spotify_token,
+          Authorization: 'Bearer ' + _jwt.spotify_token,
         },
       }).pipe(
         flatMap((res) => {
           tempArray = tempArray.concat(res.data.items);
-          if(res.data.next) {
-            return recursive(jwt, res.data.next);
+          if (res.data.next) {
+            return recursive(_jwt, res.data.next);
           } else {
             return of(tempArray);
           }
@@ -103,9 +104,9 @@ export class SortifyService {
         $group: {
           _id: '$tracks._id',
           playlists: { $addToSet: '$_id' },
-          artists: { $first: "$tracks.artists" },
-          href: { $first: "$tracks.href" },
-          name: { $first: "$tracks.name" },
+          artists: { $first: '$tracks.artists' },
+          href: { $first: '$tracks.href' },
+          name: { $first: '$tracks.name' },
         }
       },
     ]).toArray();
@@ -116,7 +117,7 @@ export class SortifyService {
     return db.collection('playlists').find({owner: userHref}).toArray();
   }
 
-  getTracksOfPlaylist(userHref: string, playlistId: string) : Array<Track> {
+  getTracksOfPlaylist(userHref: string, playlistId: string): Array<Track> {
     const { db } = mongoose.connections[1];
     return db.collection('playlists').aggregate([
       { $match: { owner: userHref } },
@@ -125,14 +126,16 @@ export class SortifyService {
         $group: {
           _id: '$tracks._id',
           playlists: { $addToSet: '$_id' },
-          artists: { $first: "$tracks.artists" },
-          href: { $first: "$tracks.href" },
-          name: { $first: "$tracks.name" },
-        }
+          artists: { $first: '$tracks.artists' },
+          href: { $first: '$tracks.href' },
+          name: { $first: '$tracks.name' },
+        },
       },
       { $match: { playlists: playlistId } },
     ]).toArray();
   }
+
+  // TODO Handle 429: Too many request error
 
   async getUnsortedTracks(spotifyUser: SortifyUser, jwt: SortifyJwt) {
     const savedTracks = await this.repeatRequests<SpotifyApi.PlaylistTrackObject>(jwt, 'https://api.spotify.com/v1/me/tracks');
@@ -148,7 +151,6 @@ export class SortifyService {
    *  - get all playlists created by user
    *  - list all the tracks by playlist
    * TODO: optimize parallele request time
-   * TODO: update all db data because it's shitty
    */
   async initializeTracksMaps(spotifyUser: SortifyUser, jwt: SortifyJwt): Promise<void> {
     const start = Date.now();
@@ -161,32 +163,34 @@ export class SortifyService {
     const tracksFilters = 'id, artists, is_local, href, name';
 
     console.log('Starting initialization! Fiouuuuu!');
-    
+
     // Get all user's playlists promise
     const playlists = await this.repeatRequests<SpotifyApi.PlaylistObjectFull>(jwt, `https://api.spotify.com/v1/me/playlists?filter=${playlistFilters}`);
     const mappedPlaylists: Array<Playlist> = playlists
       .filter((playlist) => playlist.owner.href === spotifyUser.href)
       .map((playlist) => {
-        return <Playlist> {
+        return {
           _id: playlist.id,
           name: playlist.name,
           owner: playlist.owner.href,
           snapshot: playlist.snapshot_id,
           tracksHref: playlist.tracks.href,
-        };
+        } as Playlist;
       });
-    
+
     // Get all playlists already stored in db for the user
     const storedPlaylists: Array<Playlist> = await dbPlaylist.find({owner: spotifyUser.href}).toArray();
-    
-    // Filter to get playlist out of date
-    const playlistsToUpdate = mappedPlaylists.filter((pl:Playlist) => !this.isPlaylistUpToDate(storedPlaylists, pl));
-    const playlistsToInsert = mappedPlaylists.filter((pl:Playlist) => !storedPlaylists.find((spl: Playlist) => pl._id === spl._id));
 
+    // Filter to get playlist out of date
+    const playlistsToUpdate = mappedPlaylists.filter((pl: Playlist) => !this.isPlaylistUpToDate(storedPlaylists, pl));
+    const playlistsToInsert = mappedPlaylists.filter((pl: Playlist) => !storedPlaylists.find((spl: Playlist) => pl._id === spl._id));
+
+    console.info(`${playlistsToUpdate.length} playlists to update.`);
+    console.info(`${playlistsToInsert.length} playlists to insert.`);
     // Get all tracks from playlists
-    await Promise.all(playlistsToUpdate.map(async (plToUpdate:Playlist) => {
-      let playlistTracks = await this.repeatRequests<SpotifyApi.PlaylistTrackObject>(jwt, `${plToUpdate.tracksHref}?filter=${tracksFilters}`);
-      
+    await Promise.all(playlistsToUpdate.map(async (plToUpdate: Playlist) => {
+      const playlistTracks = await this.repeatRequests<SpotifyApi.PlaylistTrackObject>(jwt, `${plToUpdate.tracksHref}?filter=${tracksFilters}`);
+
       // Map the track objects in the playlist
       plToUpdate.tracks = this.mapSpotifyToSortifyTracks(playlistTracks);
     }));
@@ -207,7 +211,7 @@ export class SortifyService {
       // TODO Response error code ?
     }
     console.info('Done in %dms', Date.now() - start);
-  };
+  }
 
   /**
    * Add all tracks to sort in a specific playlist
@@ -229,14 +233,14 @@ export class SortifyService {
           { uris: [tracksToSort] },
           { headers: { Authorization: 'Bearer ' + jwt.spotify_token } }
         ).pipe(
-          map((res) => res.data),
+          map(_res => _res.data),
           catchError((error) => {
-            throw new HttpException(error.response.data.error.message, error.response.data.error.status)
+            throw new HttpException(error.response.data.error.message, error.response.data.error.status);
           }),
         );
       }),
-      catchError((error) => { 
-        throw new HttpException(error.response.data.error.message, error.response.data.error.status)
+      catchError((error) => {
+        throw new HttpException(error.response.data.error.message, error.response.data.error.status);
       }),
     );
   }
@@ -256,14 +260,13 @@ export class SortifyService {
     // And we remove the track from each of these playlists
     listOfPlaylistsToClean.forEach((playlist: string) => {
       this.removeTracksFromPlaylist(playlist, tracksToClean);
-    })
+    });
   }
-
 
   removeTracksFromPlaylist(playlistId: string, tracksToRemove: string[]) {
     tracksToRemove.map((elem) => {
       return { uri: elem };
-    })
+    });
 
     this.httpService.delete(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
       { params: { tracks: tracksToRemove } });

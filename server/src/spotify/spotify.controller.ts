@@ -27,7 +27,7 @@ export class SpotifyController {
     return this.sortifyService.getUserInfos(jwt);
   }
 
-  @Get('/tracks')
+  @Post('/tracks')
   getTracks(@User() user: SortifyUser, @Query('playlistId') playlistId: string) {
     return this.sortifyService.getTracksOfPlaylist(user.href, playlistId);
   }
