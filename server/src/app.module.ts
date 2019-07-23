@@ -6,17 +6,8 @@ import { AuthService } from './auth.service';
 import { SortifyService } from './sortify.service';
 import { SpotifyController } from './spotify/spotify.controller';
 import { ConnectController } from './connect/connect.controller';
-import { UserSchema } from './models/user.schema';
-import { PlaylistSchema } from './models/playlist.schema';
-import { TrackSchema } from './models/track.schema';
 import { MongooseConfigService } from './mongooseConfig.service';
 import { ConfigModule } from './config.module';
-
-const mongooseEntities = [
-  { name: 'User', schema: UserSchema },
-  { name: 'Playlist', schema: PlaylistSchema },
-  { name: 'Track', schema: TrackSchema },
-]
 
 @Module({
   imports: [
@@ -26,7 +17,6 @@ const mongooseEntities = [
     MongooseModule.forRootAsync({
       useClass: MongooseConfigService,
     }),
-    MongooseModule.forFeature(mongooseEntities)
   ],
   controllers: [AppController, SpotifyController, ConnectController],
   providers: [AuthService, SortifyService],

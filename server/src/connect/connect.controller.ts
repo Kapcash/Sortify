@@ -3,7 +3,7 @@ import { AuthService } from '../auth.service';
 import { LoggingInterceptor } from '../auth.interceptor';
 import * as url from 'url';
 import express = require('express');
-import { SortifyJwt } from '../../../shared/models/sortify-jwt.model';
+import { SortifyJwt } from '../models/sortify-jwt.model';
 
 @Controller('connect')
 export class ConnectController {

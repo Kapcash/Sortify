@@ -6,7 +6,13 @@ export class Track {
   public artists: any[];
   public saved_at: Date;
 
-  constructor() {}
+  constructor(track: SpotifyApi.TrackObjectFull) {
+    this._id = track.id;
+    this.name = track.name;
+    this.href = track.href;
+    this.artists = track.artists;
+    this.saved_at = new Date();
+  }
 
   fromSpotifyTrack(track: SpotifyApi.TrackObjectFull): Track {
     this._id = track.id;

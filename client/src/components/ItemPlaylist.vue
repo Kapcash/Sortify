@@ -7,11 +7,12 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import SortifyVuex from '../stores/sortify.vuex';
+import SortifyVuex from '@src/store/sortify.vuex';
+import { Playlist } from '@shared/playlist.interface';
 
 @Component({name: 'item-playlist'})
 export default class ItemPlaylist extends Vue {
-  @Prop() public playlist: any;
+  @Prop() public playlist: Playlist;
   @Prop() public selected: boolean;
 
   public getTracks() {

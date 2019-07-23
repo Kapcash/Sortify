@@ -3,7 +3,7 @@ import { SortifyService } from '../sortify.service';
 import { LoggingInterceptor } from '../auth.interceptor';
 import { User } from '../user.decorator';
 import { SortifyUser } from '../models/user.interface';
-import { SortifyJwt } from '../../../shared/models/sortify-jwt.model';
+import { SortifyJwt } from '../models/sortify-jwt.model';
 
 @Controller('spotify')
 @UseInterceptors(LoggingInterceptor)

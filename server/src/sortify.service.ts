@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Playlist } from './models/playlist.interface';
 import { SortifyUser } from './models/user.interface';
-import { Track } from './models/track.interface';
+import { Track } from './models/track';
 import * as mongoose from 'mongoose';
 
 @Injectable()
@@ -15,7 +15,6 @@ export class SortifyService {
 
   constructor(
     @InjectModel('User') private readonly userModel: Model<SortifyUser>,
-    // @InjectModel('Track') private readonly trackModel: Model<Track>,
     private readonly httpService: HttpService,
   ) {
     this.httpService.axiosRef.interceptors.request.use((req) => {
@@ -91,7 +90,7 @@ export class SortifyService {
         // TODO Handle local track
       }
 
-      return new Track().fromSpotifyTrack(trackFromPlaylist.track);
+      return new Track(trackFromPlaylist.track);
     });
   }
 

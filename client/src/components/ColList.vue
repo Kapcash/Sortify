@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { Item } from '../../../shared/models/item.model';
+import { Item } from '@shared/item.model';
 
 @Component({name: 'col-list'})
 export default class ColList<T extends Item> extends Vue {

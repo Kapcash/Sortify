@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
+    "declaration": false,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowJs": true,
     "module": "commonjs",
-    "declaration": false,
     "noImplicitAny": true,
     "sourceMap": true,
     "target": "es2018",
     "removeComments": true,
     "noLib": false,
-  }
+  },
 }

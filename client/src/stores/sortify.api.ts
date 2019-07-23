@@ -1,14 +1,5 @@
 import axios from 'axios';
-import SortifyVuex from './sortify.vuex';
-// import {
-//   UserSubmit,
-//   UserResponse,
-//   User,
-//   ArticlesResponse,
-//   Profile,
-//   ProfileResponse,
-//   UserForUpdate,
-// } from './models';
+import SortifyVuex from '@src/stores/sortify.vuex';
 
 // TODO Methods for http calls only
 

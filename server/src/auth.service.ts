@@ -5,7 +5,6 @@ import { map } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { Observable } from 'rxjs';
 import { SortifyJwt, buildJwt } from './models/sortify-jwt.model';
-import { SortifyService } from 'sortify.service';
 
 @Injectable()
 export class AuthService {
@@ -18,8 +17,7 @@ export class AuthService {
   constructor(
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-    private readonly config: ConfigService,
-    private readonly spotifyService: SortifyService) {
+    private readonly config: ConfigService) {
       // Initialize spotify api values from local config
       this.clientId = this.config.get('client_id');
       this.clientSecret = this.config.get('client_secret');
@@ -52,7 +50,7 @@ export class AuthService {
     }).pipe(
       map(res => {
         const spotifyAuth = res.data;
-        this.spotifyService.getUserInfos()
+        // this.spotifyService.getUserInfos()
         return this.jwtService.sign(
           buildJwt(spotifyAuth.access_token,
                     spotifyAuth.expires_in,
