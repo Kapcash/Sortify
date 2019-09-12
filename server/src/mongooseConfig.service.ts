@@ -8,7 +8,7 @@ export class MongooseConfigService implements MongooseOptionsFactory {
   constructor(private config: ConfigService){
 
   }
-  
+
   createMongooseOptions(): MongooseModuleOptions {
     return {
       uri: `mongodb://${this.config.get('MONGO_IP')}:32768/sortify`,

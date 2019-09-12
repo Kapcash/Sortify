@@ -7,8 +7,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import SortifyVuex from '@src/store/sortify.vuex';
-import { Playlist } from '@shared/playlist.interface';
+import SortifyVuex from '../stores/sortify.vuex';
+import { Playlist } from '../models/playlist.interface';
 
 @Component({name: 'item-playlist'})
 export default class ItemPlaylist extends Vue {

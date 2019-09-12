@@ -7,16 +7,15 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Debug Nest Framework",
-            "args": ["${workspaceFolder}/server/src/main.ts"],
+            "name": "Debug Server Nest",
+            "args": ["${workspaceFolder}/server2/src/main.ts"],
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
             "sourceMaps": true,
             "outputCapture": "std",
-            "cwd": "${workspaceRoot}/server",
+            "cwd": "${workspaceRoot}/server2",
             "protocol": "inspector",
             "env": {
-                "NODE_ENV": "dev",
-                "MONGO_IP": "192.168.56.5"
+                "NODE_ENV": "dev"
             }
         }
     ]
