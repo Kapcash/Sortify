@@ -1,4 +1,4 @@
-import { Module, Global, HttpModule } from '@nestjs/common';
+import { Module, Global, HttpModule, UseInterceptors } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
@@ -6,7 +6,8 @@ import { TypeOrmConfigService } from './typeOrmConfig.service';
 import { ConfigModule } from './config/config.module';
 import { SpotifyModule } from './spotify/spotify.module';
 import { OauthModule } from './auth/oauth/oauth.module';
-import { OrmModule } from './orm/orm.module';
+import { SpotifyJwtInterceptor } from './spotify-jwt.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Global()
 @Module({
@@ -21,6 +22,9 @@ import { OrmModule } from './orm/orm.module';
     }),
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [{
+    provide: APP_INTERCEPTOR,
+    useClass: SpotifyJwtInterceptor,
+  }],
 })
 export class AppModule {}

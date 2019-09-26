@@ -7,6 +7,7 @@ import { ConfigService } from '../../config/config.service';
 import { SpotifyAuthService } from '../spotify-auth/spotify-auth.service';
 import { LoggingGuard } from '../logging.guard';
 import { OauthService } from '../oauth/oauth.service';
+import { SpotifyJwtInterceptor } from '../../spotify-jwt.interceptor';
 
 @Controller('connect')
 export class ConnectController {
@@ -19,7 +20,6 @@ export class ConnectController {
    */
   @Get('/')
   public connect(@Res() res: express.Response) {
-    Logger.log('GET connect');
     const authUrl = url.format({
       pathname: SPOTIFY_AUTH_URL,
       query: {
@@ -30,7 +30,7 @@ export class ConnectController {
         state: 'sortify',
       },
     });
-    Logger.log(authUrl.toString());
+    Logger.log('Redirecting to: ' + authUrl.toString());
     res.redirect(authUrl);
   }
 
@@ -57,9 +57,8 @@ export class ConnectController {
    */
   @Get('/test')
   @UseGuards(LoggingGuard)
-  public async test(@Req() req) {
-    await this.authService.getToken(undefined);
-    return 'hello';
+  public test() {
+    return this.authService.getUserInfos(undefined);
   }
 
   /**

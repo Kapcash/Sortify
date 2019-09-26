@@ -12,10 +12,12 @@ export class SpotifyDbService {
   }
 
   public getUser(userId: string): Promise<SortifyUser> {
-    return this.userRepository.findOne(userId);
+    return this.userRepository.findOne({where: {
+      _id: userId,
+    }});
   }
 
   public saveUser(user: SortifyUser): Promise<SortifyUser> {
-    return this.userRepository.save(user);
+    return this.userRepository.save({_id: user.id, ...user});
   }
 }

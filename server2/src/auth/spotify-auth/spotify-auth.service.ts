@@ -9,6 +9,7 @@ import { AUTH_REDIRECT_URI, SPOTIFY_ACCOUNT_API_URL, SPOTIFY_API_URL } from '../
 import { SortifyUser } from '../../models/user/sortifyUser.entity';
 import { SpotifyUser } from '../../models/user/spotifyUser';
 import { SpotifyDbService } from '../../orm/spotify-db/spotify-db.service';
+import { addAuthHeader } from '../auth.module';
 
 @Injectable()
 export class SpotifyAuthService {
@@ -73,7 +74,7 @@ export class SpotifyAuthService {
   getUserInfos(spotifyJwt: string): Observable<SortifyUser> {
     return this.httpService.get(
       `${SPOTIFY_API_URL}/me`,
-      { headers: { Authorization: 'Bearer ' + spotifyJwt } },
+      { headers: addAuthHeader(spotifyJwt) },
     ).pipe(
       map((res) => {
         const spotifyUser: SpotifyApi.UserObjectPrivate = res.data;

@@ -1,13 +1,10 @@
-import { Entity, Column, ObjectIdColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, PrimaryColumn, ObjectID } from 'typeorm';
 
 @Entity('users')
 export class SortifyUser {
 
-  @ObjectIdColumn()
-  id!: string;
-
-  @ObjectIdColumn({ name: 'id' })
-  _id!: string;
+  @ObjectIdColumn({name: '_id'})
+  id: string;
 
   @Column('text')
   imageLink: string;

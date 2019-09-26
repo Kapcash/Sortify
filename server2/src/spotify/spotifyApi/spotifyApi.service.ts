@@ -1,24 +1,13 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { SortifyUser } from '../../models/user/sortifyUser.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { SpotifyDbService } from '../../orm/spotify-db/spotify-db.service';
 
 @Injectable()
 export class SpotifyApiService {
 
   constructor(private readonly httpService: HttpService,
-              @InjectRepository(SortifyUser)
-              private readonly userRepository: Repository<SortifyUser>,
-  ) {
-    this.httpService.axiosRef.interceptors.request.use(req => {
-      console.log('BONJOUE');
-      return req;
-    });
-    this.httpService.axiosRef.interceptors.response.use(res => {
-      console.log('AU REVOIE');
-      return res;
-    });
-  }
+              private readonly spotifyDbService: SpotifyDbService,
+  ) {}
 
   /**
    * Get the spotify user informations
@@ -26,6 +15,6 @@ export class SpotifyApiService {
    */
   getUserInfosFromDb(userId: string): Promise<SortifyUser> {
     // Auto add jwt header here
-    return this.userRepository.findOne({ id: userId });
+    return this.spotifyDbService.getUser(userId);
   }
 }
