@@ -18,6 +18,10 @@ export class AppController {
       Headers: ${Object.keys(res.headers).filter((k) => typeof res.headers[k] === 'string').map((k) => `\n\t\t${k}: ${res.headers[k]}`)}
       Body: ${JSON.stringify(res.data)}`);
       return res;
+    }, (error) => {
+      Logger.debug(`ERROR response from: ${error.request.method.toUpperCase()} - ${error.config.url}
+      Status: ${error.response.status} - ${error.message}`);
+      throw error;
     });
   }
 
